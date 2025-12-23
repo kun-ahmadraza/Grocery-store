@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout - FoodFrezn</title>
+    <link rel="stylesheet" href="/static/css/checkout.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <img src="/static/images/logo1.png" class="logo" alt="FoodFrezn Logo">
+        <div class="support">
+            <span>For Support?</span>
+            <strong>+980-34984089</strong>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- LEFT SIDE: BILLING + SHIPPING -->
+        <div class="left">
+
+            <h2 class="title">Checkout</h2>
+
+            <!-- Billing Details -->
+            <div class="card">
+                <h3>Billing Details</h3>
+                <form action="/place_order" method="post">
+
+                    <div class="row">
+                        <div class="field">
+                            <label>Full Name</label>
+                            <input type="text" value="{{ User.username }}" name="full_name" required>
+                        </div>
+                        <div class="field">
+                            <label>Email</label>
+                            <input type="email" value="{{ User.email }}" name="email" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="field">
+                            <label>Phone</label>
+                            <input type="text" name="phone" required>
+                        </div>
+                        <div class="field">
+                            <label>Country</label>
+                            <input type="text" name="country" value="Pakistan" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Address</label>
+                        <input type="text" name="address" required>
+                    </div>
+
+                    <div class="field">
+                        <label>City</label>
+                        <input type="text" name="city" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Zip Code</label>
+                        <input type="number" name="zip_code" required>
+                    </div>
+
+            </div>
+
+            <!-- Payment Method -->
+            <div class="card">
+                <h3>Payment Method</h3>
+                <div class="payment-options">
+                    <label>
+                        <input type="radio" name="payment_method" value="cod" checked>
+                        Cash on Delivery
+                    </label>
+                    <label>
+                        <input type="radio" name="payment_method" value="card">
+                        Debit/Credit Card
+                    </label>
+                    <label>
+                        <input type="radio" name="payment_method" value="JazzCash">
+                        JazzCash
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: ORDER SUMMARY -->
+        <div class="right">
+            <div class="card summary">
+                <h3>Order Summary</h3>
+
+                {% for item in cart %}
+                <div class="summary-item">
+                    <span>{{ item.name }} (x{{ item.quantity }})</span>
+                    <span>${{ item.total_price }}</span>
+                </div>
+                {% endfor %}
+
+                <div class="summary-item">
+                    <strong>Subtotal</strong>
+                    <strong>${{ subtotal }}</strong>
+                </div>
+
+                <div class="summary-item">
+                    <strong>Shipping</strong>
+                    <strong style="color: green;">Free</strong>
+                </div>
+
+                <div class="summary-total">
+                    <strong>Total</strong>
+                    <strong>${{ total }}</strong>
+                </div>
+
+                <button type="submit" class="checkout-btn">Place Order</button>
+                                </form>
+                                
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

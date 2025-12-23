@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Add Product{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <div class="row">
+        <!-- LEFT SIDE: Add Product -->
+        <div class="col-md-8">
+            <h2 class="mb-4">Add New Product</h2>
+
+    <form action="/Add_product" method="post" enctype="multipart/form-data"
+          class="p-4 bg-white shadow-sm rounded-4" style="max-width: 650px;">
+        
+        <!-- Product Name -->
+        <div class="mb-3">
+            <label class="mb-1">Product Name</label>
+            <input type="text" name="name" class="border border-dark form-control" required>
+        </div>
+
+        <!-- Category Dropdown -->
+        <div class="mb-3">
+            <label class="mb-1">Category</label>
+            <select name="category_name" class="border border-dark form-control" required>
+                <option value="">Select Category</option>
+                
+                {% for cat in categories %}
+                    <option value="{{ cat.category_name }}">{{ cat.category_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Price -->
+        <div class="mb-3">
+            <label class="mb-1">Price</label>
+            <input type="number" name="price" step="0.01" class="border border-dark form-control" required>
+        </div>
+
+        <!-- Stock -->
+        <div class="mb-3">
+            <label class="mb-1">Stock</label>
+            <input type="number" name="stock" class="border border-dark form-control" required>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+            <label class="mb-1">Description</label>
+            <textarea name="description" class="border border-dark form-control" rows="3"></textarea>
+        </div>
+
+        <!-- Multiple Images -->
+        <div class="mb-3">
+            <label class="mb-1">Product Images</label>
+            <input type="file" name="images" class="border border-dark form-control" multiple accept="image/*">
+            <small class="text-muted">You can upload multiple images.</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary px-4">Save Product</button>
+
+    </form>
+</div>
+<div class="col-md-4">
+            <h4 class="mb-3">Add New Category</h4>
+
+            <form action="/add-category" method="post" enctype="multipart/form-data"
+                  class="p-3 bg-white shadow-sm rounded-4">
+
+                <div class="mb-2">
+                    <label class="mb-1">Category Name</label>
+                    <input type="text" name="category_name" class="border border-dark form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="mb-1">Category Images</label>
+                    <input type="file" name="category_image" class="border border-dark form-control" multiple accept="image/*">
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Add Category</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

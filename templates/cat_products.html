@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<div class="product-grid">
+
+    {% for product in products %}
+    <div class="product-card">
+
+        <!-- Wishlist -->
+        <button class="wishlist-btn">
+            <i class="fa-regular fa-heart"></i>
+        </button>
+
+        <!-- Product Image -->
+        <div class="product-img-box">
+            {% if product.images %}
+            <img src="/{{ product.images[0].image_url }}" alt="" class="product-img">
+            {% endif %}
+        </div>
+
+        <!-- Product Name -->
+        <h3 class="product-title product-name">
+            {{ product.name }}
+        </h3>
+
+        <!-- Rating -->
+        <p class="rating">
+            1 UNIT &nbsp;
+            <i class="fa-solid fa-star star-icon"></i>
+            <span>4.5</span>
+        </p>
+
+        <!-- Price -->
+        <p class="price">${{ product.price }}</p>
+        <!-- Quantity + Cart -->
+        <div class="cart-row">
+
+            <div class="qty-box">
+                <button class="qty-btn">−</button>
+                <span class="qty-value">1</span>
+                <button class="qty-btn">+</button>
+            </div>
+
+            <div class="btn-column">
+
+                <form action="/add_to_cart" method="post">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <button class="add-cart-btn w-100">Add to Cart</button>
+                </form>
+
+                <form action="/Buy-Now?product={{ product.name }}" method="post">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <button class="buy-now-btn w-100 mt-2">Buy Now</button>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+
+<style>
+
+/* ---------- GRID ---------- */
+.product-grid {
+    max-width: 1300px;
+    margin: auto;
+    padding: 30px 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+/* ---------- CARD ---------- */
+.product-card {
+    width: 280px;
+    height: 445px;
+    background: #fff;
+    padding: 17px;
+    border-radius: 22px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    position: relative;
+    transition: 0.3s;
+}
+
+.product-name {
+    white-space: nowrap;       /* Single line */
+    overflow: hidden;          /* Hide overflow */
+    text-overflow: ellipsis;   /* Add ... when text is long */
+    display: block;            /* Ensures truncation works */
+    max-width: 100%;           /* Prevents expanding */
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+/* ---------- Wishlist Icon ---------- */
+.wishlist-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #fff;
+    border-radius: 50%;
+    border: none;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.wishlist-btn i {
+    font-size: 20px;
+    color: #333;
+}
+
+/* ---------- Image Box ---------- */
+.product-img-box {
+    background: #f5f5f5;
+    border-radius: 20px;
+    padding: 20px;
+    height: 185px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-img {
+    max-width: 100%;
+    max-height: 170px;
+    object-fit: contain;
+}
+
+/* ---------- Text ---------- */
+.product-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 12px;
+}
+
+.rating {
+    font-size: 14px;
+    color: #666;
+}
+
+.star-icon {
+    color: #ffbb00;
+}
+
+/* ---------- Price ---------- */
+.price {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 10px 0;
+}
+
+/* ---------- Quantity + Cart ---------- */
+.cart-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+/* Quantity */
+.qty-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.qty-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.qty-value {
+    font-size: 16px;
+    font-weight: 600;
+}
+.btn-column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Add to Cart */
+.add-cart-btn {
+    background: #fff;
+    color: #ff9900;
+    border: 1px solid #ff9900;
+    padding: 0% 10px;
+    border-radius: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.add-cart-btn:hover {
+    background: #ff9900;
+    color: #fff;
+    font-weight: 500;
+    border: 1px solid #fff;
+}
+
+.buy-now-btn {
+    background: #ff9900;
+    color: #fff;
+    border: none;
+    padding: 0% 12px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.buy-now-btn:hover {
+    background: #fff;
+    color: #ff9900;
+    border: 1px solid #ff9900;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+
+{% endblock %}

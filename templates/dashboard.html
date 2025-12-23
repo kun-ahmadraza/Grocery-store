@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FoodFrezn Dashboard</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <img src="/static/images/logo1.png" alt="logo" class="img">
+        <h1>FoodFrezn Dashboard</h1>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Stock</th>
+                    <th>Price (PKR)</th>
+                    <th>Image</th>
+                    <th>Action</th>   <!-- NEW -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category_name }}</td>
+                    <td>{{ product.stock }}</td>
+                    <td>{{ product.price }}</td>
+
+                    <!-- Product Images -->
+                    <td>
+                        {% for img in product.images %}
+                        <img src="{{ img.image_url }}" style="height: 60px;">
+                        {% endfor %}
+                    </td>
+
+                    <!-- DELETE BUTTON -->
+                    <td>
+                        <form action="/delete_product/{{ product.id }}" method="post" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                            <button type="submit" class="delete-btn">🗑️ Delete</button>
+                        </form>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

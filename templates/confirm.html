@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout - FoodFrezn</title>
+    <link rel="stylesheet" href="/static/css/checkout.css">
+
+    
+<style>
+.thankyou-section{
+    padding:60px 20px;
+    background:#fdf6ee;
+}
+.thankyou-card{
+    max-width:1200px;
+    margin:auto;
+    background:#fff;
+    border-radius:22px;
+    display:grid;
+    grid-template-columns:1.2fr 1fr;
+    box-shadow:0 15px 40px rgba(0,0,0,.08);
+}
+.thankyou-left{
+    padding:50px;
+}
+.thankyou-left h1{
+    font-size:36px;
+    font-weight:800;
+    margin-bottom:15px;
+}
+.sub-text{
+    color:#666;
+    margin-bottom:30px;
+}
+.billing-box h4{
+    margin-bottom:10px;
+}
+.billing-box p{
+    margin:4px 0;
+}
+.track-btn{
+    display:inline-block;
+    margin-top:25px;
+    background:#ff9900;
+    color:#fff;
+    padding:12px 26px;
+    border-radius:30px;
+    font-weight:600;
+    text-decoration:none;
+}
+.thankyou-right{
+    background:#fafafa;
+    padding:40px;
+    border-radius:0 22px 22px 0;
+}
+.thankyou-right h3{
+    font-weight:700;
+    margin-bottom:20px;
+}
+.order-meta{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    font-size:14px;
+    margin-bottom:25px;
+}
+.order-meta span{color:#777;display:block}
+.order-items{
+    border-top:1px dashed #ddd;
+    padding-top:15px;
+}
+.order-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:15px;
+}
+.order-item img{
+    width:55px;
+    height:55px;
+    object-fit:contain;
+    background:#fff;
+    border-radius:12px;
+}
+.item-name{font-weight:600}
+.price-box{
+    border-top:1px solid #ddd;
+    padding-top:15px;
+    margin-top:15px;
+}
+.price-box div{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:8px;
+}
+.price-box .free{color:#1fa75a;font-weight:600}
+.price-box .total{
+    font-size:18px;
+    font-weight:800;
+}
+@media(max-width:900px){
+    .thankyou-card{grid-template-columns:1fr}
+    .thankyou-right{border-radius:0 0 22px 22px}
+}
+</style>
+
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <img src="/static/images/logo1.png" class="logo" alt="FoodFrezn Logo">
+        <div class="support">
+            <span>For Support?</span>
+            <strong>+980-34984089</strong>
+        </div>
+    </header>
+
+    <section class="thankyou-section">
+        <div class="thankyou-card">
+        <!-- LEFT SIDE -->
+        <div class="thankyou-left">
+            <h1>Thank you for your purchase!</h1>
+            <p class="sub-text">
+                Your order has been placed successfully. You will receive a confirmation email shortly.
+            </p>
+
+            <div class="billing-box">
+                <h4>Billing Address</h4>
+                <p><strong>Name:</strong> {{ User.username }}</p>
+                <p><strong>Email:</strong> {{ User.email }}</p>
+                <p><strong>Address:</strong> {{ address }}</p>
+            </div>
+
+            <a href="/orders" class="track-btn">Track Your Order</a>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="thankyou-right">
+            <h3>Order Summary</h3>
+
+            <div class="order-meta">
+                <div>
+                    <span>Date</span>
+                    <strong>{{  }}</strong>
+                </div>
+                <div>
+                    <span>Order #</span>
+                    <strong>{{  }}</strong>
+                </div>
+                <div>
+                    <span>Payment</span>
+                    <strong>Cash on Delivery</strong>
+                </div>
+            </div>
+
+            <div class="order-items">
+                {% for item in items %}
+                <div class="order-item">
+                    <img src="/{{ item.product.images[0].image_url }}" alt="">
+                    <div>
+                        <p class="item-name">{{ item.product.name }}</p>
+                        <small>Qty: {{ item.quantity }}</small>
+                    </div>
+                    <strong>PKR {{ item.quantity * item.product.price }}</strong>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="price-box">
+                <div><span>Subtotal</span><span>PKR {{ subtotal }}</span></div>
+                <div><span>Shipping</span><span class="free">Free</span></div>
+                <div class="total"><span>Total</span><span>PKR {{ total }}</span></div>
+            </div>
+        </div>
+
+    </div>
+    ```
+
+    </section>
+</body>
+</html>

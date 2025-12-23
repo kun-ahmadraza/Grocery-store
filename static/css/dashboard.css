@@ -1,0 +1,84 @@
+/* Background & fonts */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: white;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container */
+.container {
+    width: 90%;
+    margin: 30px auto;
+}
+
+/* Title */
+h1 {
+    text-align: center;
+    color: #ffc43f;
+    margin-bottom: 30px;
+}
+
+/* Table styling */
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.table th {
+    background-color: #ffc43f;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    border-radius: 10px 10px 0 0;
+}
+
+.table td {
+    background-color: #fff3e0;
+    padding: 12px;
+    border-bottom: 1px solid #ffe0cc;
+    border-radius: 5px;
+}
+
+/* Hover effect */
+.table tr:hover td {
+    background-color: #e8cd8d;
+    transform: scale(1.02);
+    transition: 0.2s;
+}
+
+/* Buttons (if any) */
+.button {
+    background-color: #ffc43f;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #ffc43f;
+}
+.img{
+    width: auto;
+    height: 75px;
+    text-align: center;
+}
+.delete-btn {
+    background-color: #f3b932;
+    color: white;
+    border: none #ffc43f;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 10px;
+}
+
+.delete-btn:hover {
+    background-color: white;
+    color: #e8cd8d;
+}
