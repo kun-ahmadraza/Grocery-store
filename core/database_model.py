@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from datetime import datetime
 
 Base = declarative_base()
 
@@ -11,7 +12,6 @@ class Category(Base):
     category_name = Column(String, unique=True)
     category_image = Column(String)
 
-    orders = relationship("Order", back_populates="category")
     products = relationship("Product", back_populates="category")
 
 class Product(Base):
@@ -28,7 +28,6 @@ class Product(Base):
 
     images = relationship("Product_img", back_populates="product", cascade="all, delete")
     cart = relationship("Cart", back_populates="product")
-    orders = relationship("Order", back_populates="product")
 
 class Product_img(Base):
     __tablename__ = "product_img"
@@ -61,23 +60,36 @@ class Cart(Base):
     product = relationship("Product", back_populates="cart")
 
 class Order(Base):
-    __tablename__ = "order"
+    __tablename__ = "orders"
 
     order_id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("user.id")) 
-    product_id = Column(Integer, ForeignKey("products.id"))   
-    category_id = Column(Integer, ForeignKey("categories.id"))
+    user_id = Column(Integer, ForeignKey("user.id"))
     billing_id = Column(Integer, ForeignKey("billing_details.billing_id"))
+    total_amount = Column(Float)
+    status = Column(String, default="pending")
+    created_at = Column(DateTime, default=datetime.utcnow)
 
-    product = relationship("Product", back_populates="orders")
     user = relationship("User", back_populates="orders")
-    category = relationship("Category", back_populates="orders")
     billing = relationship("Billing_details", back_populates="orders")
+    items = relationship("OrderItem", back_populates="order")
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+
+    id = Column(Integer, primary_key=True)
+    order_id = Column(Integer, ForeignKey("orders.order_id"))
+    product_id = Column(Integer, ForeignKey("products.id"))
+    quantity = Column(Integer)
+    price = Column(Float)
+
+    order = relationship("Order", back_populates="items")
+    product = relationship("Product")
 
 class Billing_details(Base):
     __tablename__ = "billing_details"
 
     billing_id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("user.id"))
     full_name = Column(String)
     email = Column(String)
     phone = Column(String)

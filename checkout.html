@@ -70,6 +70,9 @@
     cursor: pointer;
     flex-shrink: 0; /* Prevents button from squishing */
 }
+.img-fluid{
+    height: 65px;
+}
 
 /* Optional: Highlight the selected card */
 .payment-options label:has(input:checked) {
@@ -81,74 +84,56 @@
 <body>
 
     <div class="header">
-        <div class="logo"><div class="col-sm-4 col-lg-3 text-center text-sm-start">
-            <div class="main-logo">
-              <a href="index.html">
-                <img src="/static/images/logo1.png" alt="logo" height="65px" class="img-fluid">
-              </a>
+        <div class="logo">
+            <div class="col-sm-4 col-lg-3 text-center text-sm-start">
+                <div class="main-logo">
+                    <a href="index.html">
+                        <img src="/static/images/logo1.png" alt="logo" class="img-fluid">
+                    </a>
+                </div>
             </div>
-          </div></div>
+        </div>
     </div>
 
     <div class="checkout-container">
         <div class="section-card">
-            <form action="/place_order" method="post">
-                <h3>Delivery Information</h3>
-                <input type="text" placeholder="Full Name" value="{{ User.username }}" name="full_name" required>                
-                <input type="email" placeholder="Email" value="{{ User.email }}" name="email" required>
-                <input type="text" placeholder="Phone Number" name="phone" required>
-                <input type="text" placeholder="Shipping Address" name="address" required>
-                <input type="text" placeholder="City" name="city" required>
+            <h3>Delivery Information</h3>
+            <input type="text" placeholder="Full Name">
+            <input type="text" placeholder="Phone Number">
+            <input type="text" placeholder="Shipping Address">
+            <input type="text" placeholder="City">
             
-                <div class="card">
-                    <h3>Payment Method</h3>
-                    <div class="payment-options">
-                        <label>
-                            <input type="radio" name="payment_method" value="cod" checked>
-                            Cash on Delivery
-                        </label>
-                        <label>
-                            <input type="radio" name="payment_method" value="card">
-                            Debit/Credit Card
-                        </label>
-                        <label>
-                            <input type="radio" name="payment_method" value="JazzCash">
-                            JazzCash
-                        </label>
-                    </div>
+            <div class="card">
+                <h3>Payment Method</h3>
+                <div class="payment-options">
+                    <label>
+                        <input type="radio" name="payment_method" value="cod" checked>
+                        Cash on Delivery
+                    </label>
+                    <label>
+                        <input type="radio" name="payment_method" value="card">
+                        Debit/Credit Card
+                    </label>
+                    <label>
+                        <input type="radio" name="payment_method" value="JazzCash">
+                        JazzCash
+                    </label>
                 </div>
+            </div>
         </div>
 
         <div class="section-card" style="background-color: #fafafa; border: none;">
             <h3>Order Summary</h3>
-
-            <div class="summary-item">
-                <span>{{ product.name }} x {{ quantity }}</span>
-                <span>PKR {{ product.price * quantity }}</span>
-            </div>
-
+            <div class="summary-item"><span>Pakola Ice Cream Soda x1</span> <span>$100.00</span></div>
+            <div class="summary-item"><span>Big Apple Tin x1</span> <span>$120.00</span></div>
+            <div class="summary-item"><span>Cola Next 1.5L x1</span> <span>$160.00</span></div>
             <hr style="border: 0.5px solid #eee;">
-
-            <div class="summary-item">
-                <span>Subtotal</span>
-                <span>PKR {{ product.price * quantity }}</span>
-            </div>
-
-            <div class="summary-item">
-                <span>Delivery Fee</span>
-                <span>PKR 50</span>
-            </div>
-
-            <div class="summary-item total-row">
-                <span>Total (PKR)</span>
-                <span>PKR {{ total + 50 }}</span>
-            </div>
-
-            <button type="submit" class="btn-place-order">Place Order</button>
+            <div class="summary-item"><span>Subtotal</span> <span>$380.00</span></div>
+            <div class="summary-item"><span>Delivery Fee</span> <span>$50.00</span></div>
+            <div class="summary-item total-row"><span>Total (PKR)</span> <span>$430.00</span></div>
+            
+            <button class="btn-place-order">Place Order</button>
         </div>
-                </form>
-
-
     </div>
 
 </body>

@@ -62,12 +62,25 @@
                         <input type="email" name="email" class="form-control rounded-3 py-2"
                                placeholder="example@email.com" required>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Password</label>
-                        <input type="password" name="password" class="form-control rounded-3 py-2"
-                               placeholder="••••••••" required>
+
+                        <div class="input-group">
+                            <input 
+                                type="password"
+                                name="password"
+                                id="password"
+                                class="form-control rounded-start-3 py-2"
+                                placeholder="••••••••"
+                                required
+                            >
+
+                            <span class="input-group-text" style="cursor: pointer;" onclick="togglePassword()">
+                                👁️
+                            </span>
+                        </div>
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Role</label>
                         <select name="role" class="form-control rounded-3 py-2" required>
@@ -98,5 +111,17 @@
         © 2025 FoodFrenzy Grocery Store. All Rights Reserved.
     </footer>
 
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById("password");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+            } else {
+                passwordInput.type = "password";
+            }
+        }
+    </script>
 </body>
 </html>

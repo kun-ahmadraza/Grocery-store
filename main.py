@@ -6,6 +6,7 @@ from core import database_model
 from core.config import engine, get_db
 from sqlalchemy.orm import Session
 import os, shutil
+from datetime import datetime
 from typing import List
 from starlette.middleware.base import BaseHTTPMiddleware
 from core.auth import hash_password, verify_password, create_token, get_current_user
@@ -23,11 +24,42 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
 
-# Pass current_user function to templates
 def current_user(request):
     return request.state.current_user
 
 templates.env.globals["current_user"] = current_user
+
+def get_cart_count(request: Request):
+    db = next(get_db())
+    user = get_current_user(request)
+
+    if not user:
+        return 0
+    user_id = user['user_id']
+    return db.query(database_model.Cart).filter(database_model.Cart.user_id == user_id).count()
+
+templates.env.globals["cart_count"] = get_cart_count
+
+def get_cart_details(request: Request):
+    db = next(get_db())
+
+    user = get_current_user(request)
+    if not user:
+        return 0  
+    user_id = user["user_id"]
+    items = db.query(database_model.Cart).filter(database_model.Cart.user_id == user_id).all()
+
+    for item in items:
+        item.subtotal = item.quantity * item.product.price
+
+    total = sum(item.subtotal for item in items)
+
+    return {
+        "items": items,
+        "total": total
+    }
+
+templates.env.globals["cart_items"] = get_cart_details
 
 database_model.Base.metadata.create_all(bind=engine)
 
@@ -42,7 +74,9 @@ async def index(
 
 @app.get("/cart", response_class=HTMLResponse)
 async def cart(request: Request, db: Session = Depends(get_db)):
-    cart = db.query(database_model.Cart).all()
+    current_user = get_current_user(request)
+    user_id = current_user['user_id']
+    cart = db.query(database_model.Cart).filter(database_model.Cart.user_id == user_id).all()
 
     for item in cart:
         item.subtotal = item.quantity * item.product.price
@@ -50,6 +84,31 @@ async def cart(request: Request, db: Session = Depends(get_db)):
     total = sum(item.subtotal for item in cart)
 
     return templates.TemplateResponse("cart.html", {"request":request, "cart":cart, "total": total})
+
+@app.post("/cart/delete")
+async def delete_cart_item(request: Request, cart_id: int = Form(...), db : Session = Depends(get_db)):
+    current_user = get_current_user(request)
+    user_id = current_user['user_id']
+    item = db.query(database_model.Cart).filter(database_model.Cart.cart_id == cart_id, database_model.Cart.user_id == user_id).first()
+
+    if item:
+        db.delete(item)
+        db.commit()
+    
+    return RedirectResponse("/cart", status_code=303)
+
+@app.get("/cart/base", response_class=HTMLResponse)
+async def cart(request: Request, db: Session = Depends(get_db)):
+    current_user = get_current_user(request)
+    user_id = current_user['user_id']
+    cart = db.query(database_model.Cart).filter(database_model.Cart.user_id == user_id).all()
+
+    for item in cart:
+        item.subtotal = item.quantity * item.product.price
+
+    total = sum(item.subtotal for item in cart)
+
+    return RedirectResponse("/checkout", status_code=303)
 
 @app.post("/update_quantity/{cart_id}")
 def update_quantity(cart_id: int, action: str, db: Session = Depends(get_db)):
@@ -295,6 +354,10 @@ async def buy_now(
     product = db.query(database_model.Product).filter(database_model.Product.id == product_id).first()
 
     user = get_current_user(request)
+
+    if not user:
+        return RedirectResponse("/log-in", status_code=303)
+
     user_id = user['user_id']
 
     User = db.query(database_model.User).filter(database_model.User.id == user_id).first()
@@ -307,7 +370,7 @@ async def buy_now(
     
     total = product.price * quantity
 
-    return templates.TemplateResponse("checkout.html", {"request":request, "product": product, "quantity":quantity, "total":total, "User":User})
+    return templates.TemplateResponse("checkout.html", {"request":request, "product": product, "quantity":quantity, "total":total, "User":User, "checkout_type":"buy-now"})
 
 
 @app.post("/place_order", response_class=HTMLResponse)
@@ -316,14 +379,15 @@ async def place_order(
     phone : str = Form(...),
     address : str = Form(...),
     city : str = Form(...),
-    country: str = Form(...),
-    zip_code : int = Form(...),
     payment_method : str = Form(...),
     db : Session = Depends(get_db) 
     ):
-
+    
     user = get_current_user(request)
 
+    if not user:
+        return RedirectResponse("/login", status_code=303)
+        
     user_id = user['user_id']
 
     user = db.query(database_model.User).filter(database_model.User.id == user_id).first()
@@ -333,25 +397,39 @@ async def place_order(
 
     billing_details = database_model.Billing_details(
         full_name = full_name,
+        user_id = user_id,
         email=email,
         phone = phone,
-        country = country,
         address = address,
         city = city,
-        zip_code = zip_code
+        payment_method=payment_method,
     )
 
     db.add(billing_details)
     db.commit()
+    db.refresh(billing_details)
 
-    return templates.TemplateResponse("confirm.html", {
+    return templates.TemplateResponse("index.html", {
         "request":request,
-        "full_name":full_name,
-        "email":email,
-        "phone":phone,
-        "country":country,
-        "address":address,
-        "city":city,
-        "zip_code":zip_code,
-        "payment_method":payment_method
+        "billing_details":billing_details,
         })
+
+@app.get("/cart-check-out")
+async def cart_check_out(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request)
+
+    user_id = user["user_id"]
+
+    cart_itms = db.query(database_model.Cart).filter(database_model.Cart.user_id == user_id).all()
+
+    for item in cart_itms:
+        item.subtotal = item.quantity * item.price
+        
+    total = sum(item.subtotal for item in cart)
+    
+    return templates.TemplateResponse("checkout.html", {
+    "request": request,
+    "cart_items": cart_itms,
+    "total": total,
+    "checkout_type":"cart"
+    })
