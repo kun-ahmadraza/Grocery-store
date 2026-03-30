@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Request, Form, File, UploadFile, Depends, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, PlainTextResponse
 from core import database_model 
 from core.config import engine, get_db
 from sqlalchemy.orm import Session
 import os, shutil
+import random
+import string
 from datetime import datetime
 from typing import List
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -59,7 +61,7 @@ def get_cart_details(request: Request):
         "total": total
     }
 
-templates.env.globals["cart_items"] = get_cart_details
+templates.env.globals["get_cart"] = get_cart_details
 
 database_model.Base.metadata.create_all(bind=engine)
 
@@ -102,7 +104,6 @@ async def cart(request: Request, db: Session = Depends(get_db)):
     current_user = get_current_user(request)
     user_id = current_user['user_id']
     cart = db.query(database_model.Cart).filter(database_model.Cart.user_id == user_id).all()
-
     for item in cart:
         item.subtotal = item.quantity * item.product.price
 
@@ -360,7 +361,7 @@ async def buy_now(
 
     user_id = user['user_id']
 
-    User = db.query(database_model.User).filter(database_model.User.id == user_id).first()
+    user = db.query(database_model.User).filter(database_model.User.id == user_id).first()
 
     if not user:
         return RedirectResponse(url="/log-in", status_code=303)
@@ -370,48 +371,93 @@ async def buy_now(
     
     total = product.price * quantity
 
-    return templates.TemplateResponse("checkout.html", {"request":request, "product": product, "quantity":quantity, "total":total, "User":User, "checkout_type":"buy-now"})
+    return templates.TemplateResponse("checkout.html", {"request":request, "product": product, "quantity":quantity, "total":total, "user":user, "checkout_type":"buy_now"})
 
+def generate_order_id():
+    chars = string.ascii_uppercase + string.digits
+    return "ORD-" + ''.join(random.choices(chars, k=6))
 
-@app.post("/place_order", response_class=HTMLResponse)
+@app.post("/place_order")
 async def place_order(
-    request:Request,
-    phone : str = Form(...),
-    address : str = Form(...),
-    city : str = Form(...),
-    payment_method : str = Form(...),
-    db : Session = Depends(get_db) 
-    ):
+    request: Request,
+    phone: str = Form(...),
+    address: str = Form(...),
+    city: str = Form(...),
+    payment_method: str = Form(...),
+    checkout_type: str = Form(...),
+    product_id: int = Form(None),
+    quantity: int = Form(1),
+    db: Session = Depends(get_db)
+):
+    user_data = get_current_user(request)
+    if not user_data:
+        return RedirectResponse("/log-in", status_code=303)
+
+    user_id = user_data["user_id"]
+
+    total = 0
+
+    user = db.query(database_model.User).filter_by(id=user_data["user_id"]).first()
     
-    user = get_current_user(request)
-
-    if not user:
-        return RedirectResponse("/login", status_code=303)
-        
-    user_id = user['user_id']
-
-    user = db.query(database_model.User).filter(database_model.User.id == user_id).first()
-
-    full_name = user.username
-    email = user.email
-
-    billing_details = database_model.Billing_details(
-        full_name = full_name,
-        user_id = user_id,
-        email=email,
-        phone = phone,
-        address = address,
-        city = city,
-        payment_method=payment_method,
+    billing = database_model.Billing_details(
+        user_id=user_id,
+        full_name=user_data["username"],
+        email=user.email,
+        phone=phone, 
+        address=address,
+        city=city,
+        payment_method=payment_method
     )
-
-    db.add(billing_details)
+    db.add(billing)
     db.commit()
-    db.refresh(billing_details)
+    db.refresh(billing)
 
-    return templates.TemplateResponse("index.html", {
+    order = database_model.Order   (
+        order_id=generate_order_id(),
+        user_id=user_id,
+        billing_id=billing.billing_id,
+        total_amount=0
+    )
+    db.add(order)
+    db.commit()
+    db.refresh(order)
+
+    if checkout_type == "buy-now":
+        product = db.query(database_model.Product).get(product_id)
+        total += product.price * quantity
+
+        order_item = database_model.OrderItem(
+            order_id=order.order_id,
+            product_id=product.id,
+            quantity=quantity,
+            price=product.price
+        )
+        db.add(order_item)
+
+    elif checkout_type == "cart":
+        cart_items = db.query(database_model.Cart).filter_by(user_id=user_id).all()
+
+        for item in cart_items:
+            total += item.product.price * item.quantity
+
+            order_item = database_model.OrderItem(
+                order_id=order.order_id,
+                product_id=item.product_id,
+                quantity=item.quantity,
+                price=item.product.price
+            )
+            db.add(order_item)
+
+            db.delete(item)  
+
+    order.total_amount = total
+    db.commit()
+
+    return templates.TemplateResponse("confirm.html", {
         "request":request,
-        "billing_details":billing_details,
+        "payment_method":payment_method,
+        "order":order, 
+        "billing":billing
         })
 
 @app.get("/cart-check-out")
@@ -420,16 +466,22 @@ async def cart_check_out(request: Request, db: Session = Depends(get_db)):
 
     user_id = user["user_id"]
 
-    cart_itms = db.query(database_model.Cart).filter(database_model.Cart.user_id == user_id).all()
+    cart_items = db.query(database_model.Cart).filter(database_model.Cart.user_id == user_id).all()
 
-    for item in cart_itms:
-        item.subtotal = item.quantity * item.price
+    for item in cart_items:
+        item.subtotal = item.quantity * item.product.price
         
-    total = sum(item.subtotal for item in cart)
-    
+    total = sum(item.subtotal for item in cart_items)
+
+    user = db.query(database_model.User).filter(database_model.User.id == user_id).first()
+
+    if not user:
+        return RedirectResponse(url="/log-in", status_code=303)
+
     return templates.TemplateResponse("checkout.html", {
     "request": request,
-    "cart_items": cart_itms,
+    "cart_items": cart_items,
     "total": total,
+    "user":user,
     "checkout_type":"cart"
     })

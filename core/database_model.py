@@ -56,13 +56,13 @@ class Cart(Base):
     product_id = Column(Integer, ForeignKey("products.id"))
     quantity = Column(Integer)
     user_id = Column(Integer, ForeignKey("user.id"))
-
     product = relationship("Product", back_populates="cart")
 
 class Order(Base):
     __tablename__ = "orders"
 
-    order_id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True) 
+    order_id = Column(String, unique=True, index=True)
     user_id = Column(Integer, ForeignKey("user.id"))
     billing_id = Column(Integer, ForeignKey("billing_details.billing_id"))
     total_amount = Column(Float)
@@ -93,10 +93,8 @@ class Billing_details(Base):
     full_name = Column(String)
     email = Column(String)
     phone = Column(String)
-    country = Column(String)
     address = Column(String)
     city = Column(String)
-    zip_code = Column(Integer)
     payment_method = Column(String)
 
     orders = relationship("Order", back_populates="billing")

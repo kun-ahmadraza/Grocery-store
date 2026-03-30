@@ -2,182 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Checkout - FoodFrezn</title>
-    <link rel="stylesheet" href="/static/css/checkout.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fcfcfc; color: #333; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .success-container { max-width: 600px; width: 100%; background: #fff; border: 1px solid #e0e0e0; border-radius: 15px; padding: 40px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 50px; }
 
-    
-<style>
-.thankyou-section{
-    padding:60px 20px;
-    background:#fdf6ee;
-}
-.thankyou-card{
-    max-width:1200px;
-    margin:auto;
-    background:#fff;
-    border-radius:22px;
-    display:grid;
-    grid-template-columns:1.2fr 1fr;
-    box-shadow:0 15px 40px rgba(0,0,0,.08);
-}
-.thankyou-left{
-    padding:50px;
-}
-.thankyou-left h1{
-    font-size:36px;
-    font-weight:800;
-    margin-bottom:15px;
-}
-.sub-text{
-    color:#666;
-    margin-bottom:30px;
-}
-.billing-box h4{
-    margin-bottom:10px;
-}
-.billing-box p{
-    margin:4px 0;
-}
-.track-btn{
-    display:inline-block;
-    margin-top:25px;
-    background:#ff9900;
-    color:#fff;
-    padding:12px 26px;
-    border-radius:30px;
-    font-weight:600;
-    text-decoration:none;
-}
-.thankyou-right{
-    background:#fafafa;
-    padding:40px;
-    border-radius:0 22px 22px 0;
-}
-.thankyou-right h3{
-    font-weight:700;
-    margin-bottom:20px;
-}
-.order-meta{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:15px;
-    font-size:14px;
-    margin-bottom:25px;
-}
-.order-meta span{color:#777;display:block}
-.order-items{
-    border-top:1px dashed #ddd;
-    padding-top:15px;
-}
-.order-item{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:15px;
-}
-.order-item img{
-    width:55px;
-    height:55px;
-    object-fit:contain;
-    background:#fff;
-    border-radius:12px;
-}
-.item-name{font-weight:600}
-.price-box{
-    border-top:1px solid #ddd;
-    padding-top:15px;
-    margin-top:15px;
-}
-.price-box div{
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:8px;
-}
-.price-box .free{color:#1fa75a;font-weight:600}
-.price-box .total{
-    font-size:18px;
-    font-weight:800;
-}
-@media(max-width:900px){
-    .thankyou-card{grid-template-columns:1fr}
-    .thankyou-right{border-radius:0 0 22px 22px}
-}
-</style>
+        /* Success Icon Styling */
+        .success-icon { width: 80px; height: 80px; background-color: #dff0d8; color: #5cb85c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 20px; border: 2px solid #5cb85c; }
 
+        h1 { color: #5cb85c; font-size: 24px; margin-bottom: 10px; }
+        p.message { color: #666; margin-bottom: 30px; font-size: 16px; }
+
+        /* Details Table */
+        .order-details-box { text-align: left; background: #f9f9f9; border-radius: 10px; padding: 20px; margin-bottom: 30px; }
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .detail-row:last-child { border-bottom: none; }
+        .label { font-weight: bold; color: #555; }
+        .value { color: #333; }
+
+        /* Buttons */
+        .btn-home { background-color: #ff9800; color: white; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.3s; }
+        .btn-home:hover { background-color: #e68a00; }
+        
+        .logo-img { height: 60px; margin-bottom: 20px; }
+    </style>
 </head>
-
 <body>
 
-    <!-- Header -->
-    <header class="header">
-        <img src="/static/images/logo1.png" class="logo" alt="FoodFrezn Logo">
-        <div class="support">
-            <span>For Support?</span>
-            <strong>+980-34984089</strong>
-        </div>
-    </header>
+    <img src="/static/images/logo1.png" alt="FoodFrenzy" class="logo-img">
 
-    <section class="thankyou-section">
-        <div class="thankyou-card">
-        <!-- LEFT SIDE -->
-        <div class="thankyou-left">
-            <h1>Thank you for your purchase!</h1>
-            <p class="sub-text">
-                Your order has been placed successfully. You will receive a confirmation email shortly.
-            </p>
+    <div class="success-container">
+        <div class="success-icon">✓</div>
+        
+        <h1>Success!</h1>
+        <p class="message">Your order has been placed successfully. Thank you for shopping with FoodFrenzy!</p>
 
-            <div class="billing-box">
-                <h4>Billing Address</h4>
-                <p><strong>Name:</strong> {{ User.username }}</p>
-                <p><strong>Email:</strong> {{ User.email }}</p>
-                <p><strong>Address:</strong> {{ address }}</p>
+        <div class="order-details-box">
+            <div class="detail-row">
+                <span class="label">Order ID:</span>
+                <span class="value">#FF-{{ order.order_id }}</span>
             </div>
-
-            <a href="/orders" class="track-btn">Track Your Order</a>
-        </div>
-
-        <!-- RIGHT SIDE -->
-        <div class="thankyou-right">
-            <h3>Order Summary</h3>
-
-            <div class="order-meta">
-                <div>
-                    <span>Date</span>
-                    <strong>{{  }}</strong>
-                </div>
-                <div>
-                    <span>Order #</span>
-                    <strong>{{  }}</strong>
-                </div>
-                <div>
-                    <span>Payment</span>
-                    <strong>Cash on Delivery</strong>
-                </div>
+            <div class="detail-row">
+                <span class="label">Total Amount:</span>
+                <span class="value" style="color: #ff9800; font-weight: bold;">PKR {{ order.total_amount }}</span>
             </div>
-
-            <div class="order-items">
-                {% for item in items %}
-                <div class="order-item">
-                    <img src="/{{ item.product.images[0].image_url }}" alt="">
-                    <div>
-                        <p class="item-name">{{ item.product.name }}</p>
-                        <small>Qty: {{ item.quantity }}</small>
-                    </div>
-                    <strong>PKR {{ item.quantity * item.product.price }}</strong>
-                </div>
-                {% endfor %}
+            <div class="detail-row">
+                <span class="label">Payment Method:</span>
+                <span class="value">{{ payment_method }}</span>
             </div>
-
-            <div class="price-box">
-                <div><span>Subtotal</span><span>PKR {{ subtotal }}</span></div>
-                <div><span>Shipping</span><span class="free">Free</span></div>
-                <div class="total"><span>Total</span><span>PKR {{ total }}</span></div>
+            <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 5px;">
+                <span class="label">Delivery Address:</span>
+                <span class="value" style="font-size: 14px; line-height: 1.4;">{{ billing.address }}, {{ billing.city }}</span>
             </div>
         </div>
 
+        <a href="/" class="btn-home">CONTINUE SHOPPING</a>
     </div>
-    ```
 
-    </section>
 </body>
 </html>

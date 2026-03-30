@@ -2,154 +2,127 @@
 <html lang="en">
 <head>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; background-color: #fff; margin: 0; padding: 20px; }
+        /* Keeping your existing styles... */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; background-color: #f8f9fa; margin: 0; padding: 20px; }
         .checkout-container { max-width: 1000px; margin: auto; display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
         
-        /* Header Style matching FoodFrenzy */
-        .header { border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 30px; }
-        .logo { font-weight: bold; font-size: 24px; color: #333; }
-        .logo span { color: #ff9800; }
-
-        /* Card Style */
-        .section-card { border: 1px solid #e0e0e0; border-radius: 15px; padding: 20px; background: #fff; }
+        .header { border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 30px; background: white; }
+        .section-card { border: 1px solid #e0e0e0; border-radius: 15px; padding: 20px; background: #fff; height: fit-content; }
         h3 { margin-top: 0; font-size: 18px; color: #444; }
 
-        /* Form Inputs */
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        input:not([type="radio"]) { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         
-        /* Summary Styling */
         .summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
         .total-row { border-top: 2px solid #f5f5f5; padding-top: 15px; font-weight: bold; font-size: 18px; color: #ff9800; }
 
-        /* Matching Buttons from Image */
-        .btn-place-order {
-            background-color: #ff9800; /* Primary orange from Buy Now button */
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 15px;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-            text-transform: uppercase;
-        }
-        .btn-place-order:hover { background-color: #e68a00; }
+        .btn-place-order { background-color: #ff9800; color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; text-transform: uppercase; }
+        
+        /* Payment Options Style */
+        .payment-options { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+        .payment-options label { display: flex; align-items: center; padding: 15px; border: 1px solid #e0e0e0; border-radius: 10px; cursor: pointer; font-weight: 500; }
+        .payment-options input[type="radio"] { margin-right: 15px; accent-color: #ff9800; width: 20px; height: 20px; }
+        .payment-options label:has(input:checked) { border: 2px solid #ff9800; background-color: #fff9f0; }
 
-        .payment-options {
-    display: flex;
-    flex-direction: column;
-    gap: 12px; /* Space between options */
-    margin-top: 15px;
-}
-
-.payment-options label {
-    display: flex;
-    align-items: center; /* Vertical centering */
-    padding: 15px;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 15px;
-    font-weight: 500;
-}
-
-/* Hover effect */
-.payment-options label:hover {
-    background-color: #fff9f0;
-    border-color: #ff9800;
-}
-
-/* The radio button itself */
-.payment-options input[type="radio"] {
-    margin: 0 15px 0 0; /* Forced to the left with right margin */
-    width: 20px;
-    height: 20px;
-    accent-color: #ff9800; /* Matches the theme orange */
-    cursor: pointer;
-    flex-shrink: 0; /* Prevents button from squishing */
-}
-
-/* Optional: Highlight the selected card */
-.payment-options label:has(input:checked) {
-    border: 2px solid #ff9800;
-    background-color: #fff9f0;
-}
+        /* Modal Styles */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-box { background: white; width: 90%; max-width: 500px; border-radius: 8px; overflow: hidden; animation: slideIn 0.3s ease-out; }
+        .modal-header { padding: 20px; border-bottom: 1px solid #eee; }
+        .modal-logo { height: 45px; }
+        .modal-body { padding: 20px; text-align: center; }
+        .modal-footer { padding: 15px; background: #f9f9f9; text-align: right; }
+        .btn-confirm { background: #5cb85c; color: white; border: none; padding: 10px 30px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="logo"><div class="col-sm-4 col-lg-3 text-center text-sm-start">
-            <div class="main-logo">
-              <a href="index.html">
-                <img src="/static/images/logo1.png" alt="logo" height="65px" class="img-fluid">
-              </a>
-            </div>
-          </div></div>
+        <div class="main-logo">
+            <a href="index.html">
+                <img src="/static/images/logo1.png" alt="logo" height="65px">
+            </a>
+        </div>
     </div>
 
-    <div class="checkout-container">
-        <div class="section-card">
-            <form action="/place_order" method="post">
+    <form action="/place_order" method="post" id="checkoutForm">
+        <div class="checkout-container">
+            
+            <div class="section-card">
+                <input type="hidden" name="checkout_type" value="{{ checkout_type }}">
+                
                 <h3>Delivery Information</h3>
-                <input type="text" placeholder="Full Name" value="{{ User.username }}" name="full_name" required>                
-                <input type="email" placeholder="Email" value="{{ User.email }}" name="email" required>
+                <input type="text" placeholder="Full Name" value="{{ user.username }}" name="full_name" required>                
+                <input type="email" placeholder="Email" value="{{ user.email }}" name="email" required>
                 <input type="text" placeholder="Phone Number" name="phone" required>
                 <input type="text" placeholder="Shipping Address" name="address" required>
                 <input type="text" placeholder="City" name="city" required>
             
-                <div class="card">
+                <div style="margin-top: 20px;">
                     <h3>Payment Method</h3>
                     <div class="payment-options">
-                        <label>
-                            <input type="radio" name="payment_method" value="cod" checked>
-                            Cash on Delivery
-                        </label>
-                        <label>
-                            <input type="radio" name="payment_method" value="card">
-                            Debit/Credit Card
-                        </label>
-                        <label>
-                            <input type="radio" name="payment_method" value="JazzCash">
-                            JazzCash
-                        </label>
+                        <label><input type="radio" name="payment_method" value="cod" checked> Cash on Delivery</label>
+                        <label><input type="radio" name="payment_method" value="card"> Debit/Credit Card</label>
+                        <label><input type="radio" name="payment_method" value="JazzCash"> JazzCash</label>
                     </div>
                 </div>
+            </div>
+
+            <div class="section-card" style="background-color: #fafafa; border-color: transparent;">
+                <h3>Order Summary</h3>
+        
+                {% if checkout_type == "cart" %}
+                    {% for item in cart_items %}
+                        <div class="summary-item">
+                            <span>{{ item.product.name }} x {{ item.quantity }}</span>
+                            <span>PKR {{ item.subtotal }}</span>
+                        </div>
+                    {% endfor %}
+                {% elif checkout_type == "buy_now" %}
+                    <div class="summary-item">
+                        <span>{{ product.name }} x {{ quantity }}</span>
+                        <span>PKR {{ total }}</span>
+                    </div>
+                {% endif %}
+
+                <hr style="border: 0.5px solid #eee;">
+
+                <div class="summary-item total-row">
+                    <span>Total</span>
+                    <span>PKR {{ total }}</span>
+                </div>
+
+                <button type="button" onclick="toggleModal()" class="btn-place-order">Place Order</button>
+            </div>
         </div>
 
-        <div class="section-card" style="background-color: #fafafa; border: none;">
-            <h3>Order Summary</h3>
-
-            <div class="summary-item">
-                <span>{{ product.name }} x {{ quantity }}</span>
-                <span>PKR {{ product.price * quantity }}</span>
+        <div class="modal-overlay" id="orderModal">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <img src="/static/images/logo1.png" alt="FoodFrenzy Logo" class="modal-logo">
+                </div>
+                <div class="modal-body">
+                    <h2>Confirm Order</h2>
+                    <p>Are you sure you want to proceed with your order for <strong>PKR {{ total }}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="toggleModal()" style="background:none; border:none; cursor:pointer; color:#777; margin-right:15px;">Cancel</button>
+                    <button type="submit" class="btn-confirm">Proceed & Confirm</button>
+                </div>
             </div>
-
-            <hr style="border: 0.5px solid #eee;">
-
-            <div class="summary-item">
-                <span>Subtotal</span>
-                <span>PKR {{ product.price * quantity }}</span>
-            </div>
-
-            <div class="summary-item">
-                <span>Delivery Fee</span>
-                <span>PKR 50</span>
-            </div>
-
-            <div class="summary-item total-row">
-                <span>Total (PKR)</span>
-                <span>PKR {{ total + 50 }}</span>
-            </div>
-
-            <button type="submit" class="btn-place-order">Place Order</button>
         </div>
-                </form>
+    </form>
 
+    <script>
+        function toggleModal() {
+            const modal = document.getElementById('orderModal');
+            modal.style.display = (modal.style.display === "flex") ? "none" : "flex";
+        }
 
-    </div>
-
+        window.onclick = function(event) {
+            const modal = document.getElementById('orderModal');
+            if (event.target == modal) { modal.style.display = "none"; }
+        }
+    </script>
 </body>
 </html>
